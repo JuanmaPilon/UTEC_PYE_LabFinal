@@ -22,6 +22,9 @@ tiempo_pago_efectivo = 2  # Tiempo de pago en efectivo (minutos)
 tiempo_pago_otro = 70 / 60  # Tiempo de pago en otro medio (minutos)
 
 
+# Habilitar el modo interactivo de matplotlib
+plt.ion()
+
 # Esta funcion  genera un tiempo aleatorio entre la llegada de clientes utilizando una distribucion de Poisson con una media de mu_llegadas (3)
 # de aqui sacamos los eventos en intervalos especificos
 def generar_tiempo_llegada():
@@ -125,3 +128,6 @@ uso_stats_fila_unica, espera_stats_fila_unica = analizar_resultados(uso_cajas_fi
 # Simulación con Filas Independientes
 uso_cajas_filas_ind, espera_filas_ind = simulacion_filas_independientes(n_usuarios, k_cajas)
 uso_stats_filas_ind, espera_stats_filas_ind = analizar_resultados(uso_cajas_filas_ind, espera_filas_ind)
+
+# Mantener el control sobre la ventana de gráficos
+plt.show(block=True)
