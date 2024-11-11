@@ -2,16 +2,28 @@ import numpy as np
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 
-# Parámetros iniciales
-n_usuarios = 100          # Número de usuarios (por defecto)
-k_cajas = 3               # Número de cajas (por defecto)
-mu_llegadas = 3           # Media de tiempo entre llegadas (Distribución Poisson)
-mu_productos = 5          # Media de cantidad de productos (Distribución Normal)
-sigma_productos = 3       # Desviación estándar de cantidad de productos
+# Se usa numpy para utilizar biblioteca nativa de Py para calculos
+# Se usa scipy, especificamente scipy.stats para poder abordar la parte de estadistica y probabilidad
+# Se usa matplotlib para podes graficar todo lo que necesitemos
+
+# Se deben tener los 3 modulos o biblitecas para poder correr el programa correctamente
+# - pip install numpy
+# - pip install scipy
+# - pip install matplotlib
+
+# Todos los parametros iniciales
+n_usuarios = 100          # Valor de numero de usuarios por defecto
+k_cajas = 3               # Valor de cajas entre 1 y 5, fijado por defecto en k = 3
+mu_llegadas = 3           # Media de tiempo entre llegadas (Distribucion Poisson)
+mu_productos = 5          # Media de cantidad de productos (Distribucion Normal)
+sigma_productos = 3       # Desviacion estandar de cantidad de productos
 p_efectivo = 0.4          # Probabilidad de pagar en efectivo
 tiempo_pago_efectivo = 2  # Tiempo de pago en efectivo (minutos)
 tiempo_pago_otro = 70 / 60  # Tiempo de pago en otro medio (minutos)
 
+
+# Esta funcion  genera un tiempo aleatorio entre la llegada de clientes utilizando una distribucion de Poisson con una media de mu_llegadas (3)
+# de aqui sacamos los eventos en intervalos especificos
 def generar_tiempo_llegada():
     return stats.poisson(mu_llegadas).rvs()
 
@@ -19,14 +31,15 @@ def generar_tiempo_uso_caja():
     # Generar tiempo basado en la cantidad de productos
     tiempo_productos = max(0, stats.norm(mu_productos, sigma_productos).rvs())
     
-    # Determinar el tiempo de pago según el método
+    # Determinar el tiempo de pago segun sea el tipo de pago
     pago_efectivo = stats.bernoulli(p_efectivo).rvs()
     tiempo_pago = tiempo_pago_efectivo if pago_efectivo == 1 else tiempo_pago_otro
     
     # Tiempo total de uso de la caja
+    # Suma el valor de dist normal + el valor que depende del pago dist Bernoulli
     return tiempo_productos + tiempo_pago
 
-# Fila única
+# Fila unica
 def simulacion_fila_unica(n_usuarios, k_cajas):
     tiempo_uso_cajas = [[] for _ in range(k_cajas)]
     tiempo_espera = []
