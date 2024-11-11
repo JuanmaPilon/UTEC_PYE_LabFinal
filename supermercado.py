@@ -22,7 +22,7 @@ tiempo_pago_efectivo = 2  # Tiempo de pago en efectivo (minutos)
 tiempo_pago_otro = 70 / 60  # Tiempo de pago en otro medio (minutos)
 
 
-# Habilitar el modo interactivo de matplotlib
+# Habilitar el modo interactivo de matplotlib, donde llamamos al metodo show directamente para cada una de las graficas
 plt.ion()
 
 # Esta funcion  genera un tiempo aleatorio entre la llegada de clientes utilizando una distribucion de Poisson con una media de mu_llegadas (3)
@@ -30,6 +30,8 @@ plt.ion()
 def generar_tiempo_llegada():
     return stats.poisson(mu_llegadas).rvs()
 
+
+# Esta funcion basicamente simula el tiempo que un cliente tarda en la caja basciamente tomamos esto de la media de productos mu_productos y la desviacion estandar sigma_productos
 def generar_tiempo_uso_caja():
     # Generar tiempo basado en la cantidad de productos
     tiempo_productos = max(0, stats.norm(mu_productos, sigma_productos).rvs())
@@ -39,25 +41,27 @@ def generar_tiempo_uso_caja():
     tiempo_pago = tiempo_pago_efectivo if pago_efectivo == 1 else tiempo_pago_otro
     
     # Tiempo total de uso de la caja
-    # Suma el valor de dist normal + el valor que depende del pago dist Bernoulli
+    # Suma el valor de dist normal + el valor que depende del pago dist Bernoulli, que seria el tiempo que el un cliente tarda en pagar sus productos
+    # y el tiempo que demora en pagar dependiendo del metodo de pago
     return tiempo_productos + tiempo_pago
 
-# Fila unica
+# Funcion que ejecuta la simulacion de una FILA UNICA
 def simulacion_fila_unica(n_usuarios, k_cajas):
-    tiempo_uso_cajas = [[] for _ in range(k_cajas)]
-    tiempo_espera = []
-    llegada_actual = 0
-    tiempos_finales_cajas = np.zeros(k_cajas)
+    tiempo_uso_cajas = [[] for _ in range(k_cajas)] # crea una list de almacenaje para las cajas
+    tiempo_espera = [] # crea la lista
+    llegada_actual = 0 # inicializa el tiempo de llegada actual
+    tiempos_finales_cajas = np.zeros(k_cajas) # crea una arreglo de ceros en el momento que cada caja esta libre por primera vez, que se actualizara
+    # cada vez que con el tiempo en el que la caja atienda al ultimo cliente
     
     for _ in range(n_usuarios):
         llegada_actual += generar_tiempo_llegada()
         tiempo_uso = generar_tiempo_uso_caja()
         
-        # Seleccionar la primera caja disponible
+        # Seleccionar la primera caja disponible o libre
         caja_elegida = np.argmin(tiempos_finales_cajas)
         
         # Calcular el tiempo de espera en la fila
-        tiempo_inicio = max(llegada_actual, tiempos_finales_cajas[caja_elegida])
+        tiempo_inicio = max(llegada_actual, tiempos_finales_cajas[caja_elegida]) # se asegura que sea proximo a disponible 
         tiempo_espera_cliente = tiempo_inicio - llegada_actual
         tiempo_espera.append(tiempo_espera_cliente)
         
@@ -65,7 +69,7 @@ def simulacion_fila_unica(n_usuarios, k_cajas):
         tiempos_finales_cajas[caja_elegida] = tiempo_inicio + tiempo_uso
         tiempo_uso_cajas[caja_elegida].append(tiempo_uso)
     
-    return tiempo_uso_cajas, tiempo_espera
+    return tiempo_uso_cajas, tiempo_espera # retorna el tiempo de uso de la espera mas el tiempo de la caja
 
 # Varias filas
 def simulacion_filas_independientes(n_usuarios, k_cajas):
