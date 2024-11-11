@@ -93,10 +93,23 @@ def simulacion_filas_independientes(n_usuarios, k_cajas):
     return tiempo_uso_cajas, tiempo_espera
 
 # Analizar y graficar
-def analizar_resultados(tiempo_uso_cajas, tiempo_espera):
+def analizar_resultados(tiempo_uso_cajas, tiempo_espera, tipo_fila):
     # Calcular estadísticas para cada caja
+
+    #el cálculo proporciona el valor medio y la desviación estándar para cada caja item 3 de la letra
     tiempo_uso_stats = [(np.mean(caja), np.std(caja)) for caja in tiempo_uso_cajas]
+
+    # media y desviación estándar del tiempo de espera item 4
     tiempo_espera_stats = (np.mean(tiempo_espera), np.std(tiempo_espera))
+    
+      # Mostrar estadísticas de media y desviacion
+    print(f"\nEstadísticas del tiempo de uso de las cajas ({tipo_fila} - media, desviación estándar):")
+    for idx, (media, desviacion) in enumerate(tiempo_uso_stats, 1):
+        print(f"Caja {idx}: Media = {media:.2f}, Desviación Estándar = {desviacion:.2f}")
+    
+    print(f"\nEstadísticas del tiempo de espera en la fila ({tipo_fila} - media, desviación estándar):")
+    #.2f: el número se mostrará con 2 decimales y en formato de punto flotante.
+    print(f"\nMedia = {tiempo_espera_stats[0]:.2f}, Desviación Estándar = {tiempo_espera_stats[1]:.2f}")
     
     # Graficar tiempo de uso de cada caja
     plt.figure(figsize=(10, 5))
@@ -104,7 +117,7 @@ def analizar_resultados(tiempo_uso_cajas, tiempo_espera):
         plt.plot(caja, label=f'Caja {idx+1}')
     plt.xlabel("Cliente")
     plt.ylabel("Tiempo de uso (minutos)")
-    plt.title("Tiempo de uso en cada caja")
+    plt.title(f"Tiempo de uso en cada caja ({tipo_fila})")
     plt.legend()
     plt.show()
     
@@ -113,21 +126,34 @@ def analizar_resultados(tiempo_uso_cajas, tiempo_espera):
     plt.plot(tiempo_espera, label="Tiempo de espera")
     plt.xlabel("Cliente")
     plt.ylabel("Tiempo de espera (minutos)")
-    plt.title("Tiempo de espera de los clientes")
+    plt.title(f"Tiempo de espera de los clientes ({tipo_fila})")
     plt.legend()
     plt.show()
     
     return tiempo_uso_stats, tiempo_espera_stats
 
+    # Calcular y graficar el tiempo libre de las cajas
+def calcular_y_graficar_tiempo_libre(tiempos_finales_cajas, tiempo_total, titulo):
+    tiempo_libre = [max(0, tiempo_total - sum(caja)) for caja in tiempos_finales_cajas]
+    plt.figure(figsize=(8, 4))
+    plt.bar(range(1, len(tiempo_libre) + 1), tiempo_libre, color='skyblue')
+    plt.xlabel("Caja")
+    plt.ylabel("Tiempo libre (minutos)")
+    plt.title(f"Tiempo libre de las cajas ({titulo})")
+    plt.show()
+
 # Ejecución
 
 # Simulación con Fila Única
 uso_cajas_fila_unica, espera_fila_unica = simulacion_fila_unica(n_usuarios, k_cajas)
-uso_stats_fila_unica, espera_stats_fila_unica = analizar_resultados(uso_cajas_fila_unica, espera_fila_unica)
+analizar_resultados(uso_cajas_fila_unica, espera_fila_unica, "Fila Única")
+calcular_y_graficar_tiempo_libre(uso_cajas_fila_unica, n_usuarios * mu_llegadas, "Fila Única")
 
 # Simulación con Filas Independientes
 uso_cajas_filas_ind, espera_filas_ind = simulacion_filas_independientes(n_usuarios, k_cajas)
-uso_stats_filas_ind, espera_stats_filas_ind = analizar_resultados(uso_cajas_filas_ind, espera_filas_ind)
+analizar_resultados(uso_cajas_filas_ind, espera_filas_ind, "Filas Independientes")
+calcular_y_graficar_tiempo_libre(uso_cajas_filas_ind, n_usuarios * mu_llegadas, "Filas Independientes")
+
 
 # Mantener el control sobre la ventana de gráficos
 plt.show(block=True)
