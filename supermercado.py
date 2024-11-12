@@ -71,18 +71,19 @@ def simulacion_fila_unica(n_usuarios, k_cajas):
     
     return tiempo_uso_cajas, tiempo_espera # retorna el tiempo de uso de la espera mas el tiempo de la caja
 
-# Varias filas
-def simulacion_filas_independientes(n_usuarios, k_cajas):
-    tiempo_uso_cajas = [[] for _ in range(k_cajas)]
-    tiempo_espera = []
-    llegada_actual = 0
-    tiempos_finales_cajas = np.zeros(k_cajas)
+# Funcion que ejecuta la simulacion de VARIAS FILAS
+def simulacion_filas_independientes(n_usuarios, k_cajas): 
+    tiempo_uso_cajas = [[] for _ in range(k_cajas)] # crea una list de almacenaje para las cajas
+    tiempo_espera = [] # crea la lista
+    llegada_actual = 0 # inicializa el tiempo de llegada actual
+    tiempos_finales_cajas = np.zeros(k_cajas) # crea una arreglo de ceros en el momento que cada caja esta libre por primera vez, que se actualizara
+    # cada vez que con el tiempo en el que la caja atienda al ultimo cliente
     
     for _ in range(n_usuarios):
         llegada_actual += generar_tiempo_llegada()
         tiempo_uso = generar_tiempo_uso_caja()
         
-        # Seleccionar la caja con menos clientes en fila
+               # Seleccionar la primera caja disponible o libre
         caja_elegida = np.argmin([len(caja) for caja in tiempo_uso_cajas])
         
         # Calcular el tiempo de espera en la fila
@@ -94,19 +95,19 @@ def simulacion_filas_independientes(n_usuarios, k_cajas):
         tiempos_finales_cajas[caja_elegida] = tiempo_inicio + tiempo_uso
         tiempo_uso_cajas[caja_elegida].append(tiempo_uso)
     
-    return tiempo_uso_cajas, tiempo_espera
+    return tiempo_uso_cajas, tiempo_espera # retorna el tiempo de uso de la espera mas el tiempo de la caja
 
 # Analizar y graficar
 def analizar_resultados(tiempo_uso_cajas, tiempo_espera, tipo_fila):
-    # Calcular estadísticas para cada caja
+    # Calcular estadisticas para cada caja
 
-    #el cálculo proporciona el valor medio y la desviación estándar para cada caja item 3 de la letra
+    #el calculo proporciona el valor medio y la desviacion estandar para cada caja - item 3 de la letra
     tiempo_uso_stats = [(np.mean(caja), np.std(caja)) for caja in tiempo_uso_cajas]
 
-    # media y desviación estándar del tiempo de espera item 4
+    # media y desviacion estandar del tiempo de espera - item 4
     tiempo_espera_stats = (np.mean(tiempo_espera), np.std(tiempo_espera))
     
-      # Mostrar estadísticas de media y desviacion
+      # Mostrar estadisticas de media y desviacion
     print(f"\nEstadísticas del tiempo de uso de las cajas ({tipo_fila} - media, desviación estándar):")
     for idx, (media, desviacion) in enumerate(tiempo_uso_stats, 1):
         print(f"Caja {idx}: Media = {media:.2f}, Desviación Estándar = {desviacion:.2f}")
@@ -146,18 +147,18 @@ def calcular_y_graficar_tiempo_libre(tiempos_finales_cajas, tiempo_total, titulo
     plt.title(f"Tiempo libre de las cajas ({titulo})")
     plt.show()
 
-# Ejecución
+# Ejecucion de tablas
 
-# Simulación con Fila Única
+# Simulacion con FILA UNICA
 uso_cajas_fila_unica, espera_fila_unica = simulacion_fila_unica(n_usuarios, k_cajas)
 analizar_resultados(uso_cajas_fila_unica, espera_fila_unica, "Fila Única")
 calcular_y_graficar_tiempo_libre(uso_cajas_fila_unica, n_usuarios * mu_llegadas, "Fila Única")
 
-# Simulación con Filas Independientes
+# Simulacion con FILAS INDEPENDIENTES
 uso_cajas_filas_ind, espera_filas_ind = simulacion_filas_independientes(n_usuarios, k_cajas)
 analizar_resultados(uso_cajas_filas_ind, espera_filas_ind, "Filas Independientes")
 calcular_y_graficar_tiempo_libre(uso_cajas_filas_ind, n_usuarios * mu_llegadas, "Filas Independientes")
 
 
-# Mantener el control sobre la ventana de gráficos
+# Mantener el control sobre la ventana de graficos
 plt.show(block=True)
